@@ -63,6 +63,7 @@ pub fn line_to_css_color(line: &Line, layer_idx: usize, layer_colors: &[LayerCol
 /// Creates a vector of quadrilateral coordinates enclosing each segment of the
 /// line. The length of the returned vector is always a multiple of 8 (4 points
 /// à 2 coordinates per quadrilateral.)
+#[cfg(test)]
 pub(crate) fn segment_quads(line: &Line) -> Vec<f32> {
     let points = &line.points;
     let offset_distance = if points.is_empty() {

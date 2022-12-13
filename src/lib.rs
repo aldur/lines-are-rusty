@@ -154,44 +154,45 @@ pub struct Line {
 }
 
 impl Line {
-    fn segment_length(&self, i: usize) -> Result<f32> {
-        if i + 1 >= self.points.len() {
-            Err(Error::InvalidSegmentIndex(i))
-        } else {
-            Ok(self.points[i].distance(&self.points[i + 1]))
-        }
-    }
+    // fn segment_length(&self, i: usize) -> Result<f32> {
+    //     if i + 1 >= self.points.len() {
+    //         Err(Error::InvalidSegmentIndex(i))
+    //     } else {
+    //         Ok(self.points[i].distance(&self.points[i + 1]))
+    //     }
+    // }
 
-    fn length(&self) -> f32 {
-        self.points
-            .iter()
-            .zip(self.points[1..].iter())
-            .map(|(previous_point, point)| previous_point.distance(point))
-            .sum()
-    }
+    // fn length(&self) -> f32 {
+    //     self.points
+    //         .iter()
+    //         .zip(self.points[1..].iter())
+    //         .map(|(previous_point, point)| previous_point.distance(point))
+    //         .sum()
+    // }
 
     /// Average of each segment's width, weighted by the segment length.
     /// Primarily useful for rendering to targets requiring a fixed line width.
-    fn average_width(&self) -> f32 {
-        // TODO: Are the width values of the first and second point always the same?
+    // fn average_width(&self) -> f32 {
+    //     // TODO: Are the width values of the first and second point always the same?
 
-        // Algorithm for weighted average see e.g. notes by Tony Finch:
-        // Incremental calculation of weighted mean and variance, chapter 4
-        // https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf#page=3
-        let mut average_width = 0.0;
-        let mut total_length = 0.0;
-        for (i, point) in self.points[1..].iter().enumerate() {
-            let segment_length = self.segment_length(i).unwrap_or_else(|_| unreachable!());
-            total_length += segment_length;
-            average_width += segment_length / total_length * (point.width - average_width);
-        }
-        average_width
-    }
+    //     // Algorithm for weighted average see e.g. notes by Tony Finch:
+    //     // Incremental calculation of weighted mean and variance, chapter 4
+    //     // https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf#page=3
+    //     let mut average_width = 0.0;
+    //     let mut total_length = 0.0;
+    //     for (i, point) in self.points[1..].iter().enumerate() {
+    //         let segment_length = self.segment_length(i).unwrap_or_else(|_| unreachable!());
+    //         total_length += segment_length;
+    //         average_width += segment_length / total_length * (point.width - average_width);
+    //     }
+    //     average_width
+    // }
 
     /// Produces the offset vectors for each line segment for creating a offset
     /// polyline. Each offset vector indicates the direction and distance for
     /// offsetting the line segment. The offset vector can be mirrored to get
     /// the offset to the other side of the polyline segment.
+    #[cfg(test)]
     fn offsets(&self, offset_distance: f32) -> Vec<DirectionVec> {
         let points = &self.points;
         (1..points.len())
@@ -202,6 +203,7 @@ impl Line {
             .collect()
     }
 
+    #[cfg(test)]
     fn with_points(template: Point, points: &[(f32, f32)]) -> Line {
         Line {
             points: points
@@ -247,11 +249,12 @@ pub struct Point {
     pub pressure: f32,
 }
 
-impl Point {
-    fn distance(&self, point: &Point) -> f32 {
-        ((self.x - point.x).powi(2) + (self.y - point.y).powi(2)).sqrt()
-    }
-}
+// impl Point {
+//     #[cfg(test)]
+//     fn distance(&self, point: &Point) -> f32 {
+//         ((self.x - point.x).powi(2) + (self.y - point.y).powi(2)).sqrt()
+//     }
+// }
 
 impl<'a, 'b> Sub<&'b Point> for &'a Point {
     type Output = DirectionVec;
@@ -295,12 +298,13 @@ pub struct DirectionVec {
 }
 
 impl DirectionVec {
-    const ZERO: DirectionVec = DirectionVec { x: 0.0, y: 0.0 };
+    // const ZERO: DirectionVec = DirectionVec { x: 0.0, y: 0.0 };
 
     fn length(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2)).sqrt()
     }
 
+    #[cfg(test)]
     fn set_length(mut self, length: f32) -> DirectionVec {
         let factor = self.length() / length;
         if factor != 0.0 {
@@ -310,6 +314,7 @@ impl DirectionVec {
         self
     }
 
+    #[cfg(test)]
     fn rotate_orthogonally(mut self) -> DirectionVec {
         std::mem::swap(&mut self.x, &mut self.y);
         self.x *= -1.0;
