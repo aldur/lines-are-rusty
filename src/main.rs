@@ -7,6 +7,9 @@ use std::io::{self, BufWriter, Write};
 use std::path::Path;
 use std::process::exit;
 
+const DEFAULT_CUSTOM_COLORS: &str = "";
+const DEFAULT_LAYER_COLORS: &str = "";
+
 fn main() -> Result<()> {
     let matches = App::new("lines-are-rusty")
         .version("0.1")
@@ -35,7 +38,7 @@ fn main() -> Result<()> {
                 .short("c")
                 .long("colors")
                 .help("Which colors to use for the layers. Format: L1-black,L1-gray,L1-white;...;L5-black,L5-gray,L5-white")
-                .default_value("")
+                .default_value(DEFAULT_CUSTOM_COLORS)
         )
         .arg(
             Arg::with_name("output-type")
@@ -90,19 +93,26 @@ fn main() -> Result<()> {
         .split(';')
         .map(|layer| {
             let c = layer.split(',').collect::<Vec<&str>>();
-            if c.len() != 5 {
+
+            if colors == DEFAULT_LAYER_COLORS {
+                return LayerColor::default();
+            }
+
+            if c.len() != 6 {
                 eprintln!(
-                    "Expected 5 colors per layer (black, grey, white, blue, red). Found: {}",
+                    "Expected 6 colors per layer (black, grey, white, blue, red, yellow). Found: {}",
                     layer
                 );
                 exit(1);
             }
+
             LayerColor {
                 black: c[0].to_string(),
                 grey: c[1].to_string(),
                 white: c[2].to_string(),
                 blue: c[3].to_string(),
                 red: c[4].to_string(),
+                yellow: c[5].to_string(),
             }
         })
         .collect();

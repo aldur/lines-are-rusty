@@ -55,6 +55,7 @@ pub fn line_to_css_color(line: &Line, layer_idx: usize, layer_colors: &[LayerCol
             Color::White => layer_colors.white,
             Color::Blue => layer_colors.blue,
             Color::Red => layer_colors.red,
+            Color::Yellow => layer_colors.yellow,
         },
     }
 }
